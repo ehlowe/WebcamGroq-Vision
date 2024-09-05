@@ -1,4 +1,10 @@
-# WebcamGPT-Vision
+# Fork of WebcamGPT-Vision: WebcamGroq-Vision
+4x faster inference (at lower quality), 1 second image description. 
+If you use a Groq api key instead of an OpenAI api key it will run with Groq models for all 3 server versions below, if you use a OpenAI key it will run on GPT-4o.
+
+https://github.com/user-attachments/assets/1b1c76c0-bdd4-4f0b-803d-5522ea73a741
+
+
 
 WebcamGPT-Vision is a lightweight web application that enables users to process images from their webcam using OpenAI's GPT-4 Vision API. The application captures images from the user's webcam, sends them to the GPT-4 Vision API, and displays the descriptive results. 
 
