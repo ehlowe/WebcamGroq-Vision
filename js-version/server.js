@@ -25,7 +25,7 @@ app.use(express.static('src'));
 const PORT = process.env.PORT || 3000;
 
 // Retrieve the OpenAI API key from environment variables for secure access.
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const API_KEY = process.env.DEFAULT_API_KEY;
 
 // Define a POST route handler for '/process_image' which will process the
 // incoming image data.
@@ -43,18 +43,28 @@ app.post('/process_image', async (req, res) => {
     // and the authorization token.
     const headers = {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_API_KEY}`
+        'Authorization': `Bearer ${API_KEY}`
     };
+
+    if (API_KEY.startsWith('gsk')) {
+        model_name = "llava-v1.5-7b-4096-preview"
+        provider_url="https://api.groq.com/openai/v1/chat/completions"
+        user_prompt=""
+    } else {    
+        model_name = "gpt-4o"
+        provider_url="https://api.openai.com/v1/chat/completions"
+        user_prompt="What’s in this image? Be descriptive. For each significant item recognized, wrap this word in <b> tags. Example: The image shows a <b>man</b> in front of a neutral-colored <b>wall</b>. He has short hair, wears <b>glasses</b>, and is donning a pair of over-ear <b>headphones</b>. ... Also output an itemized list of objects recognized, wrapped in <br> and <b> tags with label <br><b>Objects:."
+    }
 
     // Construct the payload for the OpenAI API, including the model to use, the
     // message with a prompt for the image description and the base64 image data.
     const payload = {
-        model: "gpt-4-vision-preview",
+        model: model_name,
         messages: [{
             role: "user",
             content: [{
                 type: "text",
-                text: "Whats in this image? Be descriptive. For each significant item recognized, wrap this word in <b> tags. Example: The image shows a <b>man</b> in front of a neutral-colored <b>wall</b>. He has short hair, wears <b>glasses</b>, and is donning a pair of over-ear <b>headphones</b>. ... Also output an itemized list of objects recognized, wrapped in <br> and <b> tags with label <br><b>Objects:."
+                text: user_prompt
                 // The text prompt includes instructions for the OpenAI model to
                 // describe the image and format the response in a certain way.
             }, {
@@ -72,7 +82,7 @@ app.post('/process_image', async (req, res) => {
     try {
         // Make an asynchronous POST request to the OpenAI API with the headers
         // and the JSON-stringified payload.
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        const response = await fetch(provider_url, {
             method: 'POST',
             headers: headers,
             body: JSON.stringify(payload)
